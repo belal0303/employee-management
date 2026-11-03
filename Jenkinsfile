@@ -36,6 +36,19 @@ pipeline {
             }
         }
 
+        // NEW STAGE: Package and Archive Artifact
+        stage('Package & Archive Artifact') {
+            steps {
+                sh '''
+                    tar -czf employee-management-${BUILD_NUMBER}.tar.gz \
+                        app.py requirements.txt Dockerfile
+                '''
+
+                archiveArtifacts artifacts: 'employee-management-*.tar.gz',
+                                 fingerprint: true
+            }
+        }
+
         stage('Docker Build') {
             steps {
                 sh 'docker build -t employee-app:${BUILD_NUMBER} .'
