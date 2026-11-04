@@ -49,6 +49,23 @@ pipeline {
             }
         }
 
+ stage('Upload Artifact to Nexus') {
+    steps {
+        withCredentials([usernamePassword(
+            credentialsId: 'nexus-credentials',
+            usernameVariable: 'NEXUS_USER',
+            passwordVariable: 'NEXUS_PASSWORD'
+        )]) {
+            sh '''
+                curl --fail --show-error --retry 3 \
+                --user "$NEXUS_USER:$NEXUS_PASSWORD" \
+                --upload-file "employee-management-${BUILD_NUMBER}.tar.gz" \
+                "http://localhost:8081/repository/employee-artifacts/employee-management-${BUILD_NUMBER}.tar.gz"
+            '''
+        }
+    }
+}
+
         stage('Docker Build') {
             steps {
                 sh 'docker build -t employee-app:${BUILD_NUMBER} .'
